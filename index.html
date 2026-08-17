@@ -1,0 +1,2089 @@
+<!DOCTYPE html><html lang="fr"><head>
+
+
+<meta charset="UTF-8">
+<title>IMAZIA — Contrat reportage mariage</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<script src="gate.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="entretien-panel.jsx"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: #5b524a;
+    font-family: var(--imazia-body);
+    color: var(--imazia-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── Print-shaped pages on screen ─── */
+  .sheet {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 14mm 16mm 12mm;
+    margin: 18px auto;
+    background: var(--imazia-bg);
+    box-shadow: 0 8px 40px rgba(0,0,0,.35);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    font-size: 9.5pt;
+    line-height: 1.55;
+    color: var(--imazia-muted);
+  }
+
+  /* ─── Brand header strip ─── */
+  .brand {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--imazia-border-vis);
+    margin-bottom: 12px;
+  }
+  .brand-mark .logo {
+    font-family: var(--imazia-display);
+    font-weight: 900;
+    font-size: 26px;
+    letter-spacing: -0.5px;
+    color: var(--imazia-ink);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-mark .logo .x {
+    font-family: var(--imazia-display);
+    font-weight: 300;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--imazia-photo);
+  }
+  .brand-mark .sub {
+    font-size: 8.5px;
+    font-weight: 500;
+    letter-spacing: 2.6px;
+    text-transform: uppercase;
+    color: var(--imazia-muted);
+    margin-top: 5px;
+  }
+  .brand-meta {
+    text-align: right;
+    font-size: 8pt;
+    color: var(--imazia-muted);
+    line-height: 1.5;
+  }
+  .brand-meta strong { color: var(--imazia-ink); font-weight: 600; }
+
+  /* ─── Document title ─── */
+  .doc-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    margin: 6px 0 18px;
+  }
+  .doc-title h1 {
+    font-family: var(--imazia-display);
+    font-weight: 300;
+    font-style: italic;
+    font-size: 30pt;
+    letter-spacing: -0.6px;
+    line-height: 1.05;
+    color: var(--imazia-ink);
+  }
+  .doc-title h1 strong {
+    font-weight: 800;
+    font-style: normal;
+  }
+  .doc-title .ref {
+    text-align: right;
+    font-size: 8pt;
+    color: var(--imazia-muted);
+    white-space: nowrap;
+    line-height: 1.5;
+  }
+  .doc-title .ref .num {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 10pt;
+    color: var(--imazia-ink);
+    letter-spacing: 0.3px;
+  }
+
+  /* ─── Section header ─── */
+  .section {
+    margin-top: 14px;
+  }
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .section-head .num {
+    font-family: var(--imazia-display);
+    font-weight: 800;
+    font-size: 9pt;
+    color: var(--imazia-photo);
+    border: 1.4px solid var(--imazia-photo);
+    border-radius: 50px;
+    padding: 2px 9px;
+    line-height: 1.4;
+  }
+  .section-head h2 {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 13pt;
+    color: var(--imazia-ink);
+    letter-spacing: -0.2px;
+  }
+  .section-head .rule {
+    flex: 1;
+    height: 1px;
+    background: var(--imazia-border-vis);
+  }
+
+  /* ─── Parties cards (photographers identity in §01) ─── */
+  .party-label {
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--imazia-photo);
+    margin: 4px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .party-label::before {
+    content: '';
+    width: 22px;
+    height: 1px;
+    background: var(--imazia-photo);
+  }
+  .party-label + .party-label,
+  .photographers + .party-label {
+    margin-top: 14px;
+  }
+  .photographers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .photog-card {
+    border: 1px solid var(--imazia-border-vis);
+    background: #fff;
+    border-radius: var(--radius-card);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .photog-card .ph-tag {
+    font-size: 7pt;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--imazia-muted);
+  }
+  .photog-card .ph-name {
+    font-family: var(--imazia-display);
+    font-weight: 800;
+    font-size: 12pt;
+    color: var(--imazia-ink);
+    letter-spacing: -0.2px;
+    line-height: 1.1;
+  }
+  .photog-card .ph-name span {
+    font-weight: 300;
+    font-style: italic;
+    color: var(--imazia-photo);
+    letter-spacing: 0;
+    margin-left: 2px;
+  }
+  .photog-card .ph-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+    margin-top: 2px;
+  }
+  .photog-card .ph-details > div {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    gap: 8px;
+    align-items: baseline;
+    font-size: 8pt;
+    line-height: 1.45;
+    border-bottom: 1px dotted var(--imazia-border);
+    padding-bottom: 2px;
+  }
+  .photog-card .ph-details > div:last-child { border-bottom: 0; padding-bottom: 0; }
+  .photog-card dt {
+    font-size: 6.8pt;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+    color: var(--imazia-faint);
+  }
+  .photog-card dd {
+    color: var(--imazia-ink);
+    font-weight: 500;
+  }
+
+  /* ─── Form lines ─── */
+  .form-grid {
+    display: grid;
+    gap: 9px 18px;
+  }
+  .form-grid.two { grid-template-columns: 1fr 1fr; }
+  .form-grid.three { grid-template-columns: 1.4fr 0.8fr 1.2fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .field label {
+    font-size: 7.5pt;
+    font-weight: 600;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--imazia-muted);
+  }
+  .field .line {
+    border-bottom: 1px dotted var(--imazia-border-vis);
+    height: 22px;
+  }
+  .field.filled .line {
+    border-bottom-style: solid;
+    border-bottom-color: var(--imazia-ink);
+  }
+  .field .line .val {
+    font-family: var(--imazia-display);
+    font-weight: 500;
+    color: var(--imazia-ink);
+    font-size: 11pt;
+    padding-left: 2px;
+  }
+
+  /* ─── Source row (chips) ─── */
+  .source-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin-top: 12px;
+    font-size: 8.5pt;
+  }
+  .source-row > .lbl {
+    font-size: 7.5pt;
+    font-weight: 600;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--imazia-muted);
+    margin-right: 4px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px 4px 8px;
+    border: 1px solid var(--imazia-border-vis);
+    border-radius: 50px;
+    background: #fff;
+    font-size: 8.5pt;
+    color: var(--imazia-ink);
+  }
+  .chip .tick {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1.2px solid var(--imazia-border-vis);
+    background: #fff;
+    display: inline-block;
+  }
+  .chip.on { border-color: var(--imazia-photo); background: var(--imazia-photo-l); }
+  .chip.on .tick {
+    background: var(--imazia-photo);
+    border-color: var(--imazia-photo);
+    box-shadow: inset 0 0 0 2px #fff;
+  }
+  .chip .extra { color: var(--imazia-muted); font-size: 8pt; }
+
+  /* ─── Collections grid ─── */
+  .collections {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .col-card {
+    border: 1px solid var(--imazia-border-vis);
+    background: #fff;
+    border-radius: var(--radius-card);
+    padding: 12px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+  }
+  .col-card.featured {
+    border-color: var(--imazia-photo);
+    background: var(--imazia-photo-l);
+  }
+  .col-card .name {
+    font-family: var(--imazia-display);
+    font-weight: 800;
+    font-size: 12.5pt;
+    color: var(--imazia-ink);
+    letter-spacing: 0.6px;
+  }
+  .col-card .price {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 17pt;
+    color: var(--imazia-ink);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .col-card .price small {
+    font-size: 9pt;
+    color: var(--imazia-muted);
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    margin-left: 2px;
+  }
+  .col-card .duration {
+    font-size: 7.5pt;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--imazia-photo);
+  }
+  .col-card.featured .duration { color: var(--imazia-photo-h); }
+  .col-card ul {
+    list-style: none;
+    margin-top: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .col-card li {
+    font-size: 8pt;
+    color: var(--imazia-muted);
+    padding-left: 10px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .col-card li::before {
+    content: '·';
+    position: absolute;
+    left: 2px;
+    color: var(--imazia-photo);
+    font-weight: 900;
+  }
+  .col-card li.off { color: var(--imazia-faint); text-decoration: line-through; }
+  .col-card li.off::before { color: var(--imazia-faint); }
+  .col-card .pick {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--imazia-border);
+    padding-top: 6px;
+    font-size: 7.5pt;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--imazia-muted);
+    font-weight: 600;
+  }
+  .col-card .pick .box {
+    width: 13px;
+    height: 13px;
+    border: 1.2px solid var(--imazia-border-vis);
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .col-card.featured .pick .box {
+    background: var(--imazia-photo);
+    border-color: var(--imazia-photo);
+    position: relative;
+  }
+  .col-card.featured .pick .box::after {
+    content: '';
+    position: absolute;
+    inset: 2px 2px 2px 2px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translate(1px, -1px);
+    width: 7px;
+    height: 4px;
+  }
+
+  /* footnote */
+  .note {
+    font-size: 7.5pt;
+    color: var(--imazia-faint);
+    margin-top: 8px;
+    line-height: 1.45;
+  }
+
+  /* ─── Album section ─── */
+  .album-wrap {
+    display: grid;
+    grid-template-columns: 1.7fr 1fr;
+    gap: 14px;
+    margin-top: 4px;
+  }
+  .album-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .album-card {
+    border: 1px solid var(--imazia-border-vis);
+    background: #fff;
+    border-radius: var(--radius-card);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .album-card .swatch {
+    height: 36px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .album-card .swatch::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: inherit;
+  }
+  .sw-coton    { background: linear-gradient(135deg, #efe7d8 0%, #d9cab1 100%); }
+  .sw-nature   { background: linear-gradient(135deg, #a7855e 0%, #6f4f2f 100%); }
+  .sw-spirit   { background: linear-gradient(135deg, #3a3531 0%, #1a1614 100%); }
+  .sw-cuir     { background: linear-gradient(135deg, #7a3a1f 0%, #4a1f0f 100%); }
+  .album-card h4 {
+    font-family: var(--imazia-display);
+    font-weight: 800;
+    font-size: 9.5pt;
+    color: var(--imazia-ink);
+    letter-spacing: 0.4px;
+  }
+  .album-card .p-now {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 12pt;
+    color: var(--imazia-ink);
+    line-height: 1;
+  }
+  .album-card .p-was {
+    font-size: 8pt;
+    color: var(--imazia-faint);
+    text-decoration: line-through;
+  }
+  .album-card .extras {
+    font-size: 7pt;
+    color: var(--imazia-muted);
+    line-height: 1.45;
+    margin-top: 2px;
+  }
+  .album-card .extras div { display: flex; justify-content: space-between; }
+
+  /* ─── Side options panel (mise en page + mairie) ─── */
+  .opt-card {
+    background: var(--imazia-ink2);
+    color: #fff;
+    border-radius: var(--radius-card);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .opt-card h4 {
+    font-family: var(--imazia-display);
+    font-weight: 800;
+    font-size: 10pt;
+    color: #fff;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+  }
+  .opt-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 8px;
+    gap: 8px;
+  }
+  .opt-row:first-of-type { border-top: 0; padding-top: 0; }
+  .opt-row .lbl-grp .lbl {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 9pt;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+  .opt-row .lbl-grp .sub {
+    display: block;
+    font-size: 7pt;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+  .opt-row .price {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 13pt;
+    color: var(--imazia-photo);
+    line-height: 1;
+  }
+  .opt-row .price.muted { color: #fff; opacity: 0.85; }
+  .opt-pick {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 7pt;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+  }
+  .opt-pick .box {
+    width: 11px;
+    height: 11px;
+    border: 1.2px solid rgba(255,255,255,0.3);
+    border-radius: 3px;
+  }
+
+  /* ─── Totals box ─── */
+  .totals {
+    margin-top: 16px;
+    background: #fff;
+    border: 1px solid var(--imazia-border-vis);
+    border-radius: var(--radius-card);
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 0.8fr;
+    gap: 18px;
+    align-items: stretch;
+  }
+  .totals .summary {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 8.5pt;
+  }
+  .totals .summary .row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted var(--imazia-border-vis);
+    padding-bottom: 4px;
+    color: var(--imazia-muted);
+  }
+  .totals .summary .row strong { color: var(--imazia-ink); font-weight: 600; }
+  .totals .summary .row:last-child { border-bottom: 0; }
+  .totals .dates {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-left: 1px solid var(--imazia-border);
+    padding-left: 18px;
+  }
+  .totals .ttc {
+    background: var(--imazia-ink);
+    color: #fff;
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    text-align: right;
+  }
+  .totals .ttc .lbl {
+    font-size: 8pt;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    font-weight: 600;
+  }
+  .totals .ttc .amt {
+    font-family: var(--imazia-display);
+    font-weight: 800;
+    font-size: 22pt;
+    color: #fff;
+    line-height: 1.05;
+    margin-top: 4px;
+  }
+  .totals .ttc .acompte {
+    font-size: 8pt;
+    color: var(--imazia-photo);
+    font-weight: 600;
+    margin-top: 4px;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .totals .ttc .tva-note {
+    font-size: 7pt;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.3px;
+    font-style: italic;
+    margin-top: 2px;
+  }
+  .totals .ttc .acompte strong {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 11pt;
+    color: #fff;
+  }
+  .totals .ttc .acompte .acompte-sep {
+    opacity: 0.5;
+  }
+  .totals .ttc .amt #contract-total-display {
+    font-family: var(--imazia-display);
+    font-weight: 800;
+  }
+
+  /* ─── Page footer ─── */
+  .foot {
+    margin-top: auto;
+    padding-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 7.5pt;
+    color: var(--imazia-faint);
+    border-top: 1px solid var(--imazia-border);
+  }
+  .foot .left { display: flex; align-items: center; gap: 8px; }
+  .foot .left b { color: var(--imazia-ink); font-weight: 700; letter-spacing: 0.5px; }
+  .foot .page-num {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 8.5pt;
+    color: var(--imazia-ink);
+  }
+
+  /* ─── Page 2 — schedule ─── */
+  .schedule {
+    margin-top: 6px;
+    border: 1px solid var(--imazia-border-vis);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: #fff;
+  }
+  .sch-row {
+    display: grid;
+    grid-template-columns: 1.1fr 0.8fr 1.4fr 1.5fr;
+    border-bottom: 1px solid var(--imazia-border);
+  }
+  .sch-row:last-child { border-bottom: 0; }
+  .sch-row.head {
+    background: var(--imazia-bg2);
+  }
+  .sch-row.head > div {
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--imazia-ink);
+    padding: 10px 12px;
+  }
+  .sch-row > div {
+    padding: 10px 12px;
+    border-right: 1px solid var(--imazia-border);
+    font-size: 9pt;
+    color: var(--imazia-ink);
+    min-height: 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .sch-row > div:last-child { border-right: 0; }
+  .sch-row .step-name {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .sch-row .step-name .nm {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 10pt;
+    color: var(--imazia-ink);
+  }
+  .sch-row .step-name .tag {
+    font-size: 6.8pt;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--imazia-photo);
+    font-weight: 600;
+  }
+  .sch-row .hours {
+    font-family: var(--imazia-display);
+    font-weight: 500;
+    font-size: 9pt;
+    color: var(--imazia-muted);
+    line-height: 1.5;
+  }
+  .sch-row .hours span { color: var(--imazia-faint); font-size: 6.8pt; letter-spacing: 1.4px; text-transform: uppercase; margin-right: 6px; font-weight: 600; }
+  .sch-row .line-fill {
+    border-bottom: 1px dotted var(--imazia-border-vis);
+    height: 1px;
+    margin-top: 6px;
+  }
+
+  /* ─── Signature block ─── */
+  .signature {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 18px;
+  }
+  .sig-card {
+    border: 1px solid var(--imazia-border-vis);
+    border-radius: var(--radius-card);
+    background: #fff;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 120px;
+  }
+  .sig-card .role {
+    font-size: 7.5pt;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--imazia-photo);
+  }
+  .sig-card h4 {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 12pt;
+    color: var(--imazia-ink);
+  }
+  .sig-card .mention {
+    font-size: 7.5pt;
+    font-style: italic;
+    color: var(--imazia-muted);
+    line-height: 1.5;
+    border-top: 1px dotted var(--imazia-border-vis);
+    padding-top: 8px;
+    margin-top: auto;
+  }
+  .sig-card .where-when {
+    display: flex;
+    gap: 14px;
+    font-size: 8pt;
+    color: var(--imazia-muted);
+    margin-top: 6px;
+  }
+  .sig-card .where-when .item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .sig-card .where-when .item label {
+    font-size: 7pt;
+    font-weight: 600;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--imazia-faint);
+  }
+  .sig-card .where-when .item .l {
+    border-bottom: 1px dotted var(--imazia-border-vis);
+    height: 16px;
+  }
+
+  /* ─── Pages 3 & 4 — legal articles ─── */
+  .legal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--imazia-border-vis);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  .legal-head .l {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 11pt;
+    color: var(--imazia-ink);
+    letter-spacing: 0.2px;
+  }
+  .legal-head .r {
+    font-size: 7.5pt;
+    color: var(--imazia-muted);
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .legal-cols {
+    column-count: 2;
+    column-gap: 14px;
+    column-rule: 1px solid var(--imazia-border);
+    font-size: 8pt;
+    line-height: 1.55;
+    color: var(--imazia-muted);
+    text-align: justify;
+    hyphens: auto;
+  }
+  .legal-cols article {
+    break-inside: avoid;
+    margin-bottom: 9px;
+  }
+  .legal-cols h3 {
+    font-family: var(--imazia-display);
+    font-weight: 800;
+    font-size: 8.5pt;
+    color: var(--imazia-ink);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .legal-cols h3 .a-no {
+    color: var(--imazia-photo);
+    font-weight: 800;
+    font-size: 7.5pt;
+    letter-spacing: 1.4px;
+  }
+  .legal-cols h4 {
+    font-family: var(--imazia-body);
+    font-weight: 700;
+    font-size: 8pt;
+    color: var(--imazia-ink);
+    margin-top: 4px;
+    margin-bottom: 2px;
+  }
+  .legal-cols p {
+    margin-bottom: 4px;
+  }
+  .legal-cols strong { color: var(--imazia-ink); font-weight: 600; }
+  .legal-cols em { color: var(--imazia-ink); font-style: italic; font-weight: 500; }
+
+  .closing {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: var(--radius-card);
+    background: var(--imazia-bg2);
+    font-size: 8pt;
+    color: var(--imazia-muted);
+    line-height: 1.6;
+    border-left: 3px solid var(--imazia-photo);
+    text-align: justify;
+  }
+
+  /* Tagline ribbon — small italic line above the brand strip */
+  .ribbon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--imazia-display);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 9pt;
+    color: var(--imazia-photo);
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+  }
+  .ribbon::before {
+    content: '';
+    flex: 0 0 28px;
+    height: 1px;
+    background: var(--imazia-photo);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     FILLED STATE — terracotta light when data is bound
+  ═══════════════════════════════════════════════════════════ */
+  .field.filled .line {
+    border-bottom-style: solid;
+    border-bottom-color: var(--imazia-photo);
+    background: var(--imazia-photo-l);
+    padding: 0 6px;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    align-items: center;
+  }
+  .field.filled .line .val {
+    font-family: var(--imazia-display);
+    font-weight: 600;
+    font-size: 10.5pt;
+    color: var(--imazia-ink);
+    padding-left: 0;
+  }
+
+  /* Filled inline span (reference number, dates, summary lines, etc.) */
+  [data-field].is-filled {
+    background: var(--imazia-photo-l);
+    color: var(--imazia-ink);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: var(--imazia-display);
+    font-weight: 600;
+  }
+
+  /* Filled schedule line-fill */
+  .line-fill.filled {
+    border-bottom-color: var(--imazia-photo);
+    background: var(--imazia-photo-l);
+    padding: 0 4px;
+    border-radius: 4px 4px 0 0;
+    min-height: 18px;
+    height: auto;
+    color: var(--imazia-ink);
+    font-family: var(--imazia-display);
+    font-weight: 500;
+    font-size: 9pt;
+    line-height: 1.45;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Option Mairie checked marker */
+  [data-option].opt-checked .lbl-grp .lbl::after {
+    content: ' ✓';
+    color: var(--imazia-photo);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     ENTRETIEN PANEL — Sidebar form
+  ═══════════════════════════════════════════════════════════ */
+  .ep-fab {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px 10px 14px;
+    background: var(--imazia-ink);
+    color: #fff;
+    border: 0;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: var(--imazia-body);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 0 3px rgba(196,81,42,0.18);
+    transition: transform 0.2s var(--imazia-ease), background 0.2s var(--imazia-ease);
+  }
+  .ep-fab:hover { transform: translateY(-2px); background: var(--imazia-photo); }
+  .ep-fab svg { stroke: currentColor; }
+
+  .ep-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 400px;
+    z-index: 9998;
+    background: #1a1614;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 32px rgba(0,0,0,0.4);
+    font-family: var(--imazia-body);
+    font-size: 13px;
+  }
+  .ep-hd {
+    padding: 16px 18px;
+    background: #0e0c0b;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .ep-hd-ttl {
+    font-family: var(--imazia-display);
+    font-weight: 800;
+    font-size: 15px;
+    color: #fff;
+    letter-spacing: -0.2px;
+  }
+  .ep-hd-sub {
+    font-size: 11px;
+    color: var(--imazia-photo);
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .ep-x {
+    background: transparent;
+    color: rgba(255,255,255,0.5);
+    border: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .ep-x:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+  .ep-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.2) transparent;
+  }
+  .ep-body::-webkit-scrollbar { width: 8px; }
+  .ep-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+  .ep-section {
+    padding: 14px 18px 12px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    transition: color 0.2s, background 0.2s;
+  }
+  .ep-section:hover { color: #fff; background: rgba(255,255,255,0.03); }
+  .ep-section.open { color: var(--imazia-photo); }
+  .ep-section .ep-chev {
+    font-size: 16px;
+    line-height: 1;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.7);
+  }
+  .ep-section.open .ep-chev { background: var(--imazia-photo); color: #fff; }
+
+  .ep-grp {
+    padding: 4px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ep-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .ep-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ep-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .ep-hint {
+    font-style: italic;
+    font-weight: 400;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 10px;
+  }
+  .ep-input,
+  .ep-textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: var(--imazia-body);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .ep-input:focus,
+  .ep-textarea:focus {
+    border-color: var(--imazia-photo);
+    background: rgba(196,81,42,0.10);
+  }
+  .ep-textarea { resize: vertical; min-height: 60px; }
+  .ep-select { cursor: pointer; }
+  .ep-num {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .ep-num input {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    padding: 8px 10px;
+    font: inherit;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .ep-num input::-webkit-outer-spin-button,
+  .ep-num input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .ep-num .ep-suffix {
+    padding: 0 10px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    border-left: 1px solid rgba(255,255,255,0.1);
+  }
+  .ep-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    width: 100%;
+    transition: all 0.2s;
+  }
+  .ep-toggle:hover { background: rgba(255,255,255,0.08); }
+  .ep-toggle.on {
+    background: var(--imazia-photo-l);
+    border-color: var(--imazia-photo);
+  }
+  .ep-toggle-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .ep-toggle.on .ep-toggle-dot {
+    background: var(--imazia-photo);
+    border-color: var(--imazia-photo);
+    box-shadow: inset 0 0 0 3px #1a1614;
+  }
+  .ep-seg {
+    display: flex;
+    gap: 4px;
+    background: rgba(255,255,255,0.04);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .ep-seg-btn {
+    flex: 1;
+    padding: 7px 10px;
+    border: 0;
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    border-radius: 5px;
+    transition: all 0.15s;
+  }
+  .ep-seg-btn.on {
+    background: var(--imazia-photo);
+    color: #fff;
+    font-weight: 600;
+  }
+  .ep-formules {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .ep-formule {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    color: #fff;
+    font: inherit;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .ep-formule:hover { background: rgba(255,255,255,0.08); }
+  .ep-formule.on {
+    background: var(--imazia-photo-l);
+    border-color: var(--imazia-photo);
+  }
+  .ep-formule .nm {
+    font-family: var(--imazia-display);
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 0.4px;
+  }
+  .ep-formule .pr {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--imazia-photo);
+  }
+  .ep-formule.on .pr { color: #fff; }
+  .ep-formule .ph {
+    font-size: 10px;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.3px;
+  }
+  .ep-totals {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 4px;
+  }
+  .ep-totals .row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+  }
+  .ep-totals .row strong { color: #fff; font-weight: 600; }
+  .ep-totals .row.total {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 8px;
+    margin-top: 4px;
+    font-family: var(--imazia-display);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--imazia-photo);
+  }
+  .ep-totals .row.total strong { color: var(--imazia-photo); font-weight: 800; }
+  .ep-totals .row.sub { font-size: 11.5px; }
+  .ep-totals .row.sub:first-of-type { margin-top: 2px; }
+
+  .ep-horaire {
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--imazia-photo);
+    border-radius: 0 6px 6px 0;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ep-horaire-ttl {
+    font-family: var(--imazia-display);
+    font-weight: 700;
+    font-size: 12px;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .ep-note {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.55;
+  }
+  .ep-note.tiny { font-size: 10.5px; color: rgba(255,255,255,0.4); }
+
+  .ep-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .ep-btn {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 9px 12px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .ep-btn:hover { background: rgba(255,255,255,0.12); }
+  .ep-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .ep-btn:disabled:hover { background: rgba(255,255,255,0.06); }
+  .ep-btn.primary {
+    background: var(--imazia-photo);
+    border-color: var(--imazia-photo);
+  }
+  .ep-btn.primary:hover { background: var(--imazia-photo-h); }
+  .ep-btn.danger:hover {
+    background: rgba(220,80,80,0.18);
+    border-color: rgba(220,80,80,0.5);
+    color: #ff8b8b;
+  }
+  .ep-err {
+    font-size: 11.5px;
+    color: #ff8b8b;
+    padding: 8px 10px;
+    background: rgba(220,80,80,0.1);
+    border-radius: 6px;
+  }
+
+  /* When panel is open, push the contract sheets right a bit on big screens */
+  body:has(.ep-panel) .sheet {
+    margin-left: max(420px, calc((100% - 210mm) / 2));
+  }
+  @media (max-width: 1100px) {
+    body:has(.ep-panel) .sheet { margin-left: 420px; }
+  }
+
+  /* ─── Print ─── */
+  @page { size: A4; margin: 0; }
+  @media print {
+    html, body { background: #fff; }
+    .sheet {
+      margin: 0 !important;
+      box-shadow: none;
+      page-break-after: always;
+      width: 210mm;
+      min-height: 297mm;
+    }
+    .sheet:last-child { page-break-after: auto; }
+    .no-print,
+    .ep-panel,
+    .ep-fab { display: none !important; }
+  }
+</style>
+<style></style></head>
+<body data-new-gr-c-s-check-loaded="14.1295.0" data-gr-ext-installed="" style="" data-new-gr-c-s-loaded="14.1295.0">
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 1 — Collection, Album, Récapitulatif
+══════════════════════════════════════════════════════════ -->
+<section class="sheet" data-screen-label="01 Collection &amp; album">
+  <div class="ribbon">Ojunix &amp; Imazia · Reportage mariage — Édition 2027</div>
+  <header class="brand">
+    <div class="brand-mark" data-dashlane-rid="ae4fab9b2b6e0246">
+      <div class="logo" style="" data-dashlane-rid="299995a2acc5cbb3">Ojunix<br><span class="x" style="">&amp;</span>Imazia</div>
+      <div class="sub">Duo de photographes mariage · Limoges &amp; Nouvelle-Aquitaine</div>
+    </div>
+  </header>
+
+  <div class="doc-title">
+    <h1>Contrat reportage <strong>mariage</strong></h1>
+    <div class="ref">
+      <div class="num">Réf. <span data-field="reference" data-placeholder="M-2026-____">M-2026-____</span></div>
+      <div>Établi en 2 exemplaires originaux</div>
+      <div>Devis gratuit · Sans engagement</div>
+    </div>
+  </div>
+
+  <!-- Signataires -->
+  <div class="section">
+    <div class="section-head">
+      <span class="num">01</span>
+      <h2>Entre les soussignés</h2>
+      <span class="rule"></span>
+    </div>
+
+    <!-- D'une part — les photographes -->
+    <div class="party-label">D'une part — les photographes</div>
+    <div class="photographers">
+      <div class="photog-card">
+        <div class="ph-tag">Photographe 1</div>
+        <div class="ph-name">Julie Salles <span>· Ojunix</span></div>
+        <dl class="ph-details">
+          <div><dt>Société</dt><dd>Ojunix </dd></div>
+          <div><dt>SIRET</dt><dd>880 110 150 00013 · R.C.S. Limoges</dd></div>
+          <div><dt>Adresse</dt><dd>18 Allée des Besses · 87270 Couzeix</dd></div>
+          <div><dt>Mobile</dt><dd>06 08 26 06 19</dd></div>
+          <div><dt>E-mail</dt><dd>ojunix.photographie@gmail.fr</dd></div>
+          <div><dt>Site</dt><dd>ojunix.fr</dd></div>
+        </dl>
+      </div>
+      <div class="photog-card">
+        <div class="ph-tag">Photographe 2</div>
+        <div class="ph-name">Sandrine Sounaleix <span>· Imazia</span></div>
+        <dl class="ph-details">
+          <div><dt>Société</dt><dd>Imazia</dd></div>
+          <div><dt>SIRET</dt><dd>880 020 294  00027· R.C.S. Limoges</dd></div>
+          <div><dt>Adresse</dt><dd>18 Allée des Besses · 87270 Couzeix</dd></div>
+          <div><dt>Mobile</dt><dd>06 88 89 95 17</dd></div>
+          <div><dt>E-mail</dt><dd>contact@imazia.fr</dd></div>
+          <div><dt>Site</dt><dd>imaziaphoto.fr</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- D'autre part — les mariés -->
+    <div class="party-label">D'autre part — les futur·e·s marié·e·s</div>
+    <div class="form-grid two">
+      <div class="field"><label>Nom du marié·e (1)</label><div class="line" data-field="marie1.nom"></div></div>
+      <div class="field"><label>Prénom du marié·e (1)</label><div class="line" data-field="marie1.prenom"></div></div>
+      <div class="field"><label>Nom du marié·e (2)</label><div class="line" data-field="marie2.nom"></div></div>
+      <div class="field"><label>Prénom du marié·e (2)</label><div class="line" data-field="marie2.prenom"></div></div>
+    </div>
+
+    <div class="form-grid three" style="margin-top:9px;">
+      <div class="field"><label>Adresse</label><div class="line" data-field="adresse"></div></div>
+      <div class="field"><label>Code postal</label><div class="line" data-field="cp"></div></div>
+      <div class="field"><label>Localité</label><div class="line" data-field="ville"></div></div>
+    </div>
+
+    <div class="form-grid three" style="margin-top:9px;">
+      <div class="field"><label>Mobile (1)</label><div class="line" data-field="marie1.mobile"></div></div>
+      <div class="field"><label>Mobile (2)</label><div class="line" data-field="marie2.mobile"></div></div>
+      <div class="field"><label>E-mail</label><div class="line" data-field="email"></div></div>
+    </div>
+
+    <div class="source-row">
+      <span class="lbl">Vous nous avez connues —</span>
+      <span class="chip" data-source="bouche"><span class="tick"></span>Bouche à oreille</span>
+      <span class="chip" data-source="mariages"><span class="tick"></span>Mariages.net</span>
+      <span class="chip" data-source="google"><span class="tick"></span>Google</span>
+      <span class="chip" data-source="instagram"><span class="tick"></span>Instagram</span>
+      <span class="chip" data-source="autre"><span class="tick"></span>Autre <span class="extra">— <span data-field="sourceAutre"></span></span></span>
+    </div>
+  </div>
+
+  <!-- Collections -->
+  <div class="section">
+    <div class="section-head">
+      <span class="num">02</span>
+      <h2>Choix de la collection</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="collections">
+      <div class="col-card" data-formule="opale">
+        <div class="duration">1 photographe · Essentielle</div>
+        <div class="name">OPALE</div>
+        <div class="price">1&nbsp;150&nbsp;€<small>H.T.</small></div>
+        <ul>
+          <li>Mairie</li>
+          <li>Église / cérémonie laïque</li>
+          <li>Photos de couple</li>
+          <li>Photos de groupe</li>
+        </ul>
+        <div class="pick"><span>Je choisis</span><span class="box"></span></div>
+      </div>
+
+      <div class="col-card" data-formule="saphir">
+        <div class="duration">2 photographes · Journée</div>
+        <div class="name">SAPHIR</div>
+        <div class="price">1&nbsp;650&nbsp;€<small>H.T.</small></div>
+        <ul>
+          <li>Mairie &amp; église / laïque</li>
+          <li>Photos de couple</li>
+          <li>Photos de groupe</li>
+          <li>Vin d'honneur</li>
+          <li>Studio photo</li>
+          <li>Photos au drone</li>
+        </ul>
+        <div class="pick"><span>Je choisis</span><span class="box"></span></div>
+      </div>
+
+      <div class="col-card" data-formule="ruby">
+        <div class="duration">2 photographes · Variante A ou B</div>
+        <div class="name">RUBY</div>
+        <div class="price">2&nbsp;050&nbsp;€<small>H.T.</small></div>
+        <ul>
+          <li data-ruby-variant="A"><em>A.</em> Préparatifs (coiff. · maquillage · habillage)</li>
+          <li><em>ou</em></li>
+          <li data-ruby-variant="B"><em>B.</em> Repas · Dessert · Ouverture du bal</li>
+          <li>+ Mairie · Église / laïque</li>
+          <li>+ Couple · Groupe · Vin d'honneur</li>
+          <li>+ Studio photo · Drone</li>
+          <li>+ Petit film récapitulatif</li>
+        </ul>
+        <div class="pick"><span>Sélectionnée</span><span class="box"></span></div>
+      </div>
+
+      <div class="col-card" data-formule="diamant">
+        <div class="duration">2 photographes · Intégrale</div>
+        <div class="name">DIAMANT</div>
+        <div class="price">2&nbsp;550&nbsp;€<small>H.T.</small></div>
+        <ul>
+          <li>Préparatifs complets</li>
+          <li>Mairie · Église / laïque</li>
+          <li>Couple · Groupe · Vin d'honneur</li>
+          <li>Studio photo · Drone</li>
+          <li>Repas · Dessert · Ouverture du bal</li>
+          <li>Petit film récapitulatif</li>
+        </ul>
+        <div class="pick"><span>Je choisis</span><span class="box"></span></div>
+      </div>
+    </div>
+    <p class="note">Tous les tarifs s'entendent en euros, <strong>H.T.</strong> — <em style="color:var(--imazia-ink); font-style:italic;">TVA non applicable, art. 293 B du CGI</em>. Le <em style="color:var(--imazia-ink); font-style:italic;">studio photo</em> désigne un set de portraits mis en place le jour J. Le <em style="color:var(--imazia-ink); font-style:italic;">petit film récapitulatif</em> inclus dans Ruby et Diamant retrace quelques moments clés capturés en caméra portable et drone. Aucun album ni tirage n'est inclus dans la tarification — vous choisissez librement la taille et la matière ; nous restons disponibles pour vous accompagner sur devis.</p>
+  </div>
+
+  <!-- Livraison & options -->
+  <div class="section">
+    <div class="section-head">
+      <span class="num">03</span>
+      <h2>Livraison &amp; options</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="album-wrap" style="grid-template-columns: 1.5fr 1fr;">
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div class="album-card" style="flex-direction:row; align-items:center; gap:12px;">
+          <div style="flex:0 0 44px; height:44px; border-radius:50%; background: var(--imazia-photo-l); display:flex; align-items:center; justify-content:center;">
+            <span style="font-family:var(--imazia-display); font-weight:800; font-size:14pt; color:var(--imazia-photo);">30</span>
+          </div>
+          <div style="flex:1;">
+            <h4 style="font-size:10pt;">Livraison sous 45 jours maximum</h4>
+            <div class="extras" style="font-size:8pt;">Format <strong style="color:var(--imazia-ink);">10×15 HD</strong> · sur clé USB personnalisée ou par transfert numérique</div>
+          </div>
+        </div>
+        <div class="album-card" style="flex-direction:row; align-items:center; gap:12px;">
+          <div style="flex:0 0 44px; height:44px; border-radius:50%; background: var(--imazia-photo-l); display:flex; align-items:center; justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C4512A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="12" cy="12" r="3.5"></circle></svg>
+          </div>
+          <div style="flex:1;">
+            <h4 style="font-size:10pt;">Galerie en ligne pour vos invités</h4>
+            <div class="extras" style="font-size:8pt;">Partage simple · commandes de tirages possibles — selon vos envies, sur devis.</div>
+          </div>
+        </div>
+        <div class="album-card" style="flex-direction:row; align-items:center; gap:12px;">
+          <div style="flex:0 0 44px; height:44px; border-radius:50%; background: var(--imazia-photo-l); display:flex; align-items:center; justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C4512A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2"></rect></svg>
+          </div>
+          <div style="flex:1;">
+            <h4 style="font-size:10pt;">Petit film récapitulatif <em style="color:var(--imazia-photo); font-style:italic;">(Ruby &amp; Diamant)</em></h4>
+            <div class="extras" style="font-size:8pt;">Quelques moments clés filmés en caméra portable et drone, sur demande.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opt-card">
+        <h4>Options ponctuelles</h4>
+
+        <div class="opt-row" data-option="mairie">
+          <div class="lbl-grp">
+            <span class="lbl">Option Mairie</span>
+            <span class="sub">+ 1h, autre jour que la réception</span>
+          </div>
+          <div class="price">300&nbsp;€</div>
+        </div>
+
+        <div class="opt-row">
+          <div class="lbl-grp">
+            <span class="lbl">Heure supplémentaire</span>
+            <span class="sub">facturée au ¼ d'heure entamé</span>
+          </div>
+          <div class="price muted">250&nbsp;€<small style="font-size:8pt; opacity:0.7;">&nbsp;/h</small></div>
+        </div>
+
+        <div class="opt-pick">
+          <span class="box"></span>
+          <span>Cocher les options retenues</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">Aucun album ni tirage n'est inclus dans la tarification : vous restez libres du choix de la taille, de la matière et du finisseur. Nous restons disponibles pour vous accompagner sur devis. Déplacements inclus jusqu'à 100 km · au-delà : 0,70 €/km (voir article 10).</p>
+  </div>
+
+  <!-- Totals -->
+  <div class="totals">
+    <div class="summary">
+      <div class="row"><span>Formule <span data-field="derived.formuleName"></span></span><strong data-field="derived.totalFormuleEUR" data-placeholder="__________________">__________________</strong></div>
+      <div class="row"><span>Option Mairie</span><strong data-field="derived.totalMairieEUR" data-placeholder="__________________">__________________</strong></div>
+      <div class="row"><span>Heures sup. <span data-field="derived.heuresSupHr"></span></span><strong data-field="derived.totalHsupEUR" data-placeholder="__________________">__________________</strong></div>
+      <div class="row"><span>Déplacement <span data-field="derived.kmExtraKm"></span></span><strong data-field="derived.totalKmEUR" data-placeholder="__________________">__________________</strong></div>
+      <div class="row"><span>Autres options</span><strong>__________________</strong></div>
+    </div>
+    <div class="dates">
+      <div class="field"><label>Date du mariage</label><div class="line" data-field="dateMariage"></div></div>
+      <div class="field"><label>Nombre d'invités</label><div class="line" data-field="nbInvites"></div></div>
+      <div class="field"><label>Lieu(x) principal(aux)</label><div class="line" data-field="lieuxPrincipaux"></div></div>
+    </div>
+    <div class="ttc">
+      <div class="lbl">Total H.T.</div>
+      <div class="amt"><span data-field="derived.totalTtcEUR" data-placeholder="_____ €">_____ €</span></div>
+      <div class="tva-note">TVA non applicable — art. 293 B du CGI</div>
+      <div class="acompte">
+        Acompte 30&nbsp;% à la signature
+        <span class="acompte-sep">·</span>
+        <strong data-field="derived.acompteEUR" data-placeholder="_____ €">_____ €</strong>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <div class="left"><b>IMAZIA × OJUNIX</b> · Duo de photographes mariage, Limoges</div>
+    <div class="page-num">1 / 4</div>
+  </footer>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 2 — Déroulement de la journée
+══════════════════════════════════════════════════════════ -->
+<section class="sheet" data-screen-label="02 Déroulement" data-dashlane-rid="0cd65175a370c2bc">
+  <div class="ribbon" style="" data-dashlane-rid="a2e51c546545d374">Ojunix &amp; Imazia · Déroulement de la journée</div>
+  <header class="brand">
+    <div class="brand-mark" data-dashlane-rid="43e638dfcd1f0952">
+      <div class="logo" style="" data-dashlane-rid="c7c0e693ea6637dc">Ojunix<br><span class="x" style="">&amp;</span>Imazia</div>
+      <div class="sub">Duo de photographes mariage · Limoges &amp; Nouvelle-Aquitaine</div>
+    </div>
+    <div class="brand-meta">
+      <div><strong>Contrat reportage mariage</strong> · Réf. <span data-field="reference" data-placeholder="M-2026-____">M-2026-____</span></div>
+      <div>Mariés : <span data-field="derived.mariesSummary" data-placeholder=".............................................................">.............................................................</span> · Date : <span data-field="dateMariage" data-placeholder="........................">........................</span></div>
+    </div>
+  </header>
+
+  <div class="doc-title">
+    <h1>Déroulement de la <strong>journée</strong></h1>
+    <div class="ref">
+      <div class="num">Page 2 / 4</div>
+      <div>À compléter par les mariés</div>
+      <div>Modifiable jusqu'à J–30</div>
+    </div>
+  </div>
+
+  <p class="note" style="margin-bottom:14px; color:var(--imazia-muted); font-size:8.5pt;">
+    Ce déroulé nous sert de fil rouge le jour J. Indiquez les horaires prévus, le lieu et tout commentaire utile (témoins, surprises, personnes importantes à photographier). Le planning définitif sera confirmé deux semaines avant le mariage.
+  </p>
+
+  <div class="schedule">
+    <div class="sch-row head">
+      <div>Étape</div>
+      <div>Horaires</div>
+      <div>Adresse</div>
+      <div>Commentaire</div>
+    </div>
+
+    <div class="sch-row">
+      <div class="step-name"><span class="nm">Préparatifs <em style="font-style:italic; color:var(--imazia-photo);">M.</em></span><span class="tag">Marié·e 1 · maquillage · habillage</span></div>
+      <div class="hours"><div><span>Début</span> <span data-field="horaires.prepMari.debut"></span></div><div><span>Fin</span> <span data-field="horaires.prepMari.fin"></span></div></div>
+      <div><div class="line-fill" data-field="horaires.prepMari.adresse"></div></div>
+      <div><div class="line-fill" data-field="horaires.prepMari.comment"></div></div>
+    </div>
+
+    <div class="sch-row">
+      <div class="step-name"><span class="nm">Préparatifs <em style="font-style:italic; color:var(--imazia-photo);">Mme</em></span><span class="tag">Marié·e 2 · coiffure · maquillage</span></div>
+      <div class="hours"><div><span>Début</span> <span data-field="horaires.prepMariee.debut"></span></div><div><span>Fin</span> <span data-field="horaires.prepMariee.fin"></span></div></div>
+      <div><div class="line-fill" data-field="horaires.prepMariee.adresse"></div></div>
+      <div><div class="line-fill" data-field="horaires.prepMariee.comment"></div></div>
+    </div>
+
+    <div class="sch-row">
+      <div class="step-name"><span class="nm">Cérémonie civile</span><span class="tag">Mairie</span></div>
+      <div class="hours"><div><span>Début</span> <span data-field="horaires.cerCivile.debut"></span></div><div><span>Fin</span> <span data-field="horaires.cerCivile.fin"></span></div></div>
+      <div><div class="line-fill" data-field="horaires.cerCivile.adresse"></div></div>
+      <div><div class="line-fill" data-field="horaires.cerCivile.comment"></div></div>
+    </div>
+
+    <div class="sch-row">
+      <div class="step-name"><span class="nm">Cérémonie religieuse / laïque</span><span class="tag">Lieu de culte</span></div>
+      <div class="hours"><div><span>Début</span> <span data-field="horaires.cerReligieuse.debut"></span></div><div><span>Fin</span> <span data-field="horaires.cerReligieuse.fin"></span></div></div>
+      <div><div class="line-fill" data-field="horaires.cerReligieuse.adresse"></div></div>
+      <div><div class="line-fill" data-field="horaires.cerReligieuse.comment"></div></div>
+    </div>
+
+    <div class="sch-row">
+      <div class="step-name"><span class="nm">Portraits de couple</span><span class="tag">Lumière naturelle</span></div>
+      <div class="hours"><div><span>Début</span> <span data-field="horaires.portraitsCouple.debut"></span></div><div><span>Fin</span> <span data-field="horaires.portraitsCouple.fin"></span></div></div>
+      <div><div class="line-fill" data-field="horaires.portraitsCouple.adresse"></div></div>
+      <div><div class="line-fill" data-field="horaires.portraitsCouple.comment"></div></div>
+    </div>
+
+    <div class="sch-row">
+      <div class="step-name"><span class="nm">Portraits de groupe</span><span class="tag">Témoins · famille</span></div>
+      <div class="hours"><div><span>Début</span> <span data-field="horaires.portraitsGroupe.debut"></span></div><div><span>Fin</span> <span data-field="horaires.portraitsGroupe.fin"></span></div></div>
+      <div><div class="line-fill" data-field="horaires.portraitsGroupe.adresse"></div></div>
+      <div><div class="line-fill" data-field="horaires.portraitsGroupe.comment"></div></div>
+    </div>
+
+    <div class="sch-row">
+      <div class="step-name"><span class="nm">Vin d'honneur</span><span class="tag">Cocktail</span></div>
+      <div class="hours"><div><span>Début</span> <span data-field="horaires.vinHonneur.debut"></span></div><div><span>Fin</span> <span data-field="horaires.vinHonneur.fin"></span></div></div>
+      <div><div class="line-fill" data-field="horaires.vinHonneur.adresse"></div></div>
+      <div><div class="line-fill" data-field="horaires.vinHonneur.comment"></div></div>
+    </div>
+
+    <div class="sch-row">
+      <div class="step-name"><span class="nm">Dîner / soirée</span><span class="tag">Réception</span></div>
+      <div class="hours"><div><span>Début</span> <span data-field="horaires.dinerSoiree.debut"></span></div><div><span>Fin</span> <span data-field="horaires.dinerSoiree.fin"></span></div></div>
+      <div><div class="line-fill" data-field="horaires.dinerSoiree.adresse"></div></div>
+      <div><div class="line-fill" data-field="horaires.dinerSoiree.comment"></div></div>
+    </div>
+
+    <div class="sch-row">
+      <div class="step-name"><span class="nm">Autre</span><span class="tag">À préciser</span></div>
+      <div class="hours"><div><span>Début</span> <span data-field="horaires.autreEtape.debut"></span></div><div><span>Fin</span> <span data-field="horaires.autreEtape.fin"></span></div></div>
+      <div><div class="line-fill" data-field="horaires.autreEtape.adresse"></div></div>
+      <div><div class="line-fill" data-field="horaires.autreEtape.comment"></div></div>
+    </div>
+  </div>
+
+  <!-- Signatures page 2 -->
+  <div class="signature" style="grid-template-columns: 1fr 1fr 1fr;">
+    <div class="sig-card">
+      <div class="role">Signature — photographe 1</div>
+      <h4 style="font-size: 10px">Sandrine Sounaleix — Imazia
+
+
+
+
+
+
+
+
+
+</h4>
+      <div class="where-when">
+        <div class="item"><label>Fait à</label><div class="l" data-field="lieuContrat"></div></div>
+        <div class="item"><label>Le</label><div class="l" data-field="derived.dateContratFR"></div></div>
+      </div>
+      <div class="mention">Signature précédée de la mention manuscrite « Lu et approuvé, bon pour accord ».</div>
+    </div>
+
+    <div class="sig-card">
+      <div class="role">Signature — photographe 2</div>
+      <h4 style="font-size: 10px">Julie Salles — Ojunix
+
+
+
+
+
+
+
+
+
+</h4>
+      <div class="where-when">
+        <div class="item"><label>Fait à</label><div class="l" data-field="lieuContrat"></div></div>
+        <div class="item"><label>Le</label><div class="l" data-field="derived.dateContratFR"></div></div>
+      </div>
+      <div class="mention">Signature précédée de la mention manuscrite « Lu et approuvé, bon pour accord ».</div>
+    </div>
+
+    <div class="sig-card">
+      <div class="role">Signature des futurs mariés</div>
+      <h4 style="font-size: 10px">Marié·e (1)         &amp;           Marié·e (2)
+
+
+
+
+
+
+
+
+
+</h4>
+      <div class="where-when">
+        <div class="item"><label>Fait à</label><div class="l" data-field="lieuContrat"></div></div>
+        <div class="item"><label>Le</label><div class="l" data-field="derived.dateContratFR"></div></div>
+      </div>
+      <div class="mention">Signature précédée de la mention manuscrite « Lu et approuvé, bon pour accord ».</div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <div class="left"><b style="">Ojunix &amp; Imazia</b> · « Capturer l'émotion, raconter votre histoire »</div>
+    <div class="page-num">2 / 4</div>
+  </footer>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 3 — Mentions légales (Articles 1 → 7)
+══════════════════════════════════════════════════════════ -->
+<section class="sheet" data-screen-label="03 Mentions légales" data-dashlane-rid="60cf586c1f736a23">
+  <div class="ribbon" style="" data-dashlane-rid="0fba98b083e39b97">Ojunix &amp; Imazia · Mentions légales — Articles 1 → 7</div>
+  <header class="brand">
+    <div class="brand-mark" data-dashlane-rid="2e7c9757b7f8152b">
+      <div class="logo" style="" data-dashlane-rid="7bb03a3ff0cece58">Ojunix<br><span class="x" style="">&amp;</span>Imazia</div>
+      <div class="sub">Duo de photographes mariage · Limoges &amp; Nouvelle-Aquitaine</div>
+    </div>
+    <div class="brand-meta" data-dashlane-rid="3b14de3cb04fdf67">
+      <div><strong>Mentions légales</strong> · Contrat reportage mariage</div>
+      <div style="" data-dashlane-rid="efabe792a4d0c927"><br></div>
+    </div>
+  </header>
+
+  <div class="legal-head">
+    <div class="l">Mentions légales — Contrat reportage mariage</div>
+    <div class="r">Articles 1 → 7</div>
+  </div>
+
+  <div class="legal-cols">
+    <article>
+      <h3><span class="a-no">Art. 1</span> Objet du contrat et choix du forfait</h3>
+      <p>Les Clients ont souhaité faire appel aux Photographes pour la couverture photographique de leur mariage, dont la date est précisée ci-après. Les personnes ayant signé le présent contrat (ci-après désignées « <strong>les Mariés</strong> ») deviennent responsables des sommes engagées. Aucun tiers ne pourra se substituer à leur position de Client concernant les consignes et décisions relatives au reportage.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 2</span> Date · Choix de la formule · Prix &amp; modalités</h3>
+      <h4>2.1 — Choix de la formule et prix</h4>
+      <p>Parmi les différents forfaits proposés par les Photographes, les Mariés ont fait choix du forfait <strong><span data-field="derived.formuleName" data-placeholder="…">…</span></strong> pour un prix de <strong><span data-field="derived.totalTtcEUR" data-placeholder="… €">… €</span></strong>. Ce montant est net, après application d'une éventuelle majoration ou réduction, et s'entend <strong>H.T.</strong> — <em>TVA non applicable, art. 293 B du CGI</em>.</p>
+      <p>Les parties conviennent expressément que les photographies ne seront pas livrées à défaut de paiement du solde du prix convenu.</p>
+
+      <h4>Frais de transport</h4>
+      <p>Les frais de transport sont inclus dans le forfait du mariage, pour les seuls lieux indiqués à l'article 2.2 ci-après. Toute modification des lieux entraînera une facturation supplémentaire à hauteur de <strong>0,70 €/km</strong> supplémentaire.</p>
+
+      <h4>2.2 — Prestations comprises ou exclues</h4>
+      <p>Le forfait retenu inclut les prestations détaillées en page 1 et le déroulement de la journée précisé en page 2 du présent contrat.</p>
+      <p><strong>Observations particulières / requêtes spécifiques des Mariés :</strong> <span data-field="notes" data-placeholder="……………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………">……………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………………</span></p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 3</span> Majorité</h3>
+      <p>Les Mariés déclarent être majeurs et en justifieront si nécessaire. En cas de minorité de l'un et/ou l'autre des mariés, la signature de ses deux parents sera requise sur le présent contrat.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 4</span> Droit à l'image &amp; propriété intellectuelle</h3>
+      <h4>4.1 — Propriété intellectuelle</h4>
+      <p>La livraison éventuelle des photographies sur support numérique n'implique pas transmission des droits de propriété intellectuelle sur les photographies livrées (art. L111-3 du Code de la Propriété Intellectuelle). Les photographies livrées ne le sont qu'à usage de diffusion au sein du cercle familial entendu au sens large (famille et invités).</p>
+      <p>Aucune publication ne pourra intervenir sur support papier (magazine, presse…) ou virtuel (site Internet à usage commercial, cession de droits à des tiers) sans l'accord des Photographes préalablement consultées. Toute violation de cette disposition sera constitutive de contrefaçon au sens de l'article L335-2 du Code de la Propriété Intellectuelle.</p>
+      <p>Les Mariés ne procéderont à aucun recadrage des photographies, ni à aucune modification de quelque nature que ce soit. Toute modification sera considérée comme une atteinte à l'intégrité des photographies, pouvant entraîner des poursuites pour contrefaçon.</p>
+      <p>Toute utilisation numérique, à des fins strictement familiales ou privées, même sur un support public (réseaux sociaux), devra se faire à l'aide des seuls fichiers en basse définition présents sur le support livré, sans altération, recadrage ou suppression du filigrane figurant sur les fichiers.</p>
+      <p>Toute utilisation par les Mariés conformément au présent contrat sera accompagnée d'un renvoi explicite vers le site des Photographes sous la forme suivante :
+©Photo Imazia — imaziaphoto.fr / ©Photo Ojunix — ojunix.fr. 
+Les Mariés s'engagent à signaler aux Photographes toute utilisation frauduleuse qu'ils auraient constatée.</p>
+
+      <h4>4.2 — Droit à l'image</h4>
+      <p>Les Mariés consentent par la signature de la présente convention à ce que certaines photographies soient utilisées sur les supports de communication des Photographes : site web et blog, réseaux sociaux, books, brochures, flyers, cartes de visite, bureaux occupés par les Photographes, tous supports existants ou à venir permettant la promotion, sites et webmagazines dédiés à la photographie en général ou à la photographie de mariage en particulier, ouvrages présentant l'œuvre des photographes, expositions artistiques et/ou concours photographiques, y compris le droit de reproduction pour catalogues, affiches, flyers et dossiers de presse, articles de presse locale, nationale ou internationale spécialisée.</p>
+      <p>Les Photographes s'engagent à tenir les Mariés informés des différentes publications de leurs photographies. Les Photographes s'engagent à ne pas faire usage des photographies à des fins susceptibles de nuire aux personnes représentées. Aucune utilisation ne sera faite par les Photographes en dehors de leurs propres besoins de communication.</p>
+      <p>Aucun droit ne sera cédé à des tiers sans l'autorisation des Mariés qui y figurent. Cette autorisation est accordée pour une durée de <strong>3 ans</strong> à compter de la signature de la présente convention.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 5</span> Annulation</h3>
+      <h4>5.1 — Annulation par les Mariés</h4>
+      <p>L'acompte versé à la signature du contrat est le témoin d'un engagement ferme et définitif. Aucune annulation ne pourra intervenir, sauf cas de force majeure tel que défini à l'article 5.4 ci-après.</p>
+
+      <h4>5.2 — Annulation par les Photographes</h4>
+      <p>Aucune annulation ne pourra intervenir du fait des Photographes, excepté en cas de force majeure dûment justifié. En cas de force majeure, les Photographes s'engagent à prendre contact avec un·e autre photographe partenaire pour réaliser la prestation. Il peut être difficile de trouver, à qualité égale et dans un délai parfois court, un·e photographe professionnel·le de remplacement au même tarif et au même niveau de qualité.</p>
+      <p>En cas d'impossibilité de trouver une alternative, et sous réserve de démontrer le cas de force majeure qui empêche d'exécuter la prestation, aucune indemnisation ne pourra être réclamée aux Photographes. Ces dernières proposeront aux Mariés une nouvelle séance de photographies de couple dans les meilleurs délais, ou procéderont au remboursement total des montants versés par les Mariés.</p>
+
+      <h4>5.3 — Changement de date</h4>
+      <p>Tout changement de date de la prestation fait office d'annulation. Si les Photographes sont disponibles pour la nouvelle date fixée, elles proposeront un nouveau contrat. Les Photographes ne pourront pas être tenues pour responsables si elles se trouvent dans l'impossibilité d'assurer la prestation à la date finalement fixée. Si l'annulation est due à un cas de force majeure dûment démontré par les Mariés, l'acompte et les éventuelles pénalités prévues seront restitués aux Mariés.</p>
+
+      <h4>5.4 — Force majeure</h4>
+      <p>Ne sont considérés comme « cas de force majeure » que les événements extérieurs, indépendants de la volonté des Photographes et des Mariés, imprévisibles et insurmontables, rendant impossible l'exécution des obligations. La partie qui invoque un cas de force majeure devra en rapporter la preuve.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 6</span> Conditions de prise de vue</h3>
+      <h4>Autorisation du responsable du service religieux et/ou civil</h4>
+      <p>Les Mariés s'engagent à vérifier (et si besoin à obtenir) l'accord du responsable du service religieux et/ou civil sur le principe des prises de vue. La responsabilité des Photographes ne pourra être engagée en cas de refus du responsable avant ou au jour de la cérémonie, si ces circonstances empêchent totalement ou partiellement la réalisation de la prestation.</p>
+
+      <h4>Autres prestataires &amp; invités</h4>
+      <p>Les Mariés garantissent qu'ils n'ont pas fait appel à un autre prestataire pour la réalisation de la couverture photographique de l'événement. À défaut, ils en informent immédiatement les Photographes afin de permettre un contact entre les deux prestataires en vue de déterminer les modalités de leurs interventions respectives. La responsabilité des Photographes ne pourra pas être recherchée en cas de gêne occasionnée par le second prestataire, voire par les invités ou parents des Mariés. Les Mariés s'engagent à obtenir de leurs invités qu'ils laissent en permanence la priorité aux Photographes pour les prises de vue, sans gêner ni entraver ces dernières.</p>
+
+      <h4>Suivi des consignes · unité des prestations · matériel</h4>
+      <p>Les Mariés s'engagent à respecter les instructions des Photographes. La prestation se déroule d'un seul tenant — leur temps de présence ne peut être fractionné sauf accord préalable. Afin de permettre des prises de vue de qualité, les Mariés s'engagent à organiser la journée de façon à se réserver un moment seuls avec les Photographes pour les photos de couple.</p>
+      <p>Les Photographes s'engagent à se munir de matériel en suffisance et à veiller à utiliser un matériel en bon état d'entretien et de fonctionnement. Elles apporteront le soin nécessaire à la sauvegarde progressive des cartes mémoire à leur post-traitement ultérieur dans les règles de l'art. Elles ne seront toutefois pas responsables d'une panne inopinée d'une partie de leur matériel, ce cas devant alors être considéré comme un cas de force majeure empêchant la livraison d'une partie des photographies.</p>
+
+      <h4>Intempéries</h4>
+      <p>En cas de conditions climatiques empêchant le déroulement normal des prises de vue, et essentiellement des photos de couple, une solution alternative sera définie dans la mesure du possible à l'avance et mise en place afin de satisfaire aux obligations du contrat. Les Mariés reconnaissent qu'une météo défavorable peut affecter partiellement ou totalement le résultat des prises de vue et la qualité de celles-ci, sans que la responsabilité des Photographes ne puisse être engagée.</p>
+
+      <h4>Photographies &amp; attitude des invités</h4>
+      <p>Les Mariés autorisent les Photographes à prendre en photo l'ensemble des invités et personnes présentes lors de l'événement. Ils feront leur affaire personnelle d'une éventuelle contestation de la part de l'un des invités et trouveront un accord avec ce dernier dans le cadre de la diffusion des photographies au cercle familial.</p>
+      <p>Les Photographes s'engagent à ne pas faire usage à des fins promotionnelles des photos représentant des invités reconnaissables sans obtenir préalablement l'accord de ces derniers. Les Mariés s'engagent à aider les Photographes dans cette hypothèse, et à permettre la mise en contact des Photographes avec la personne concernée.</p>
+      <p>Les Photographes s'efforceront d'obtenir des clichés de tous les invités mais ne seront pas tenues pour responsables si certaines personnes n'ont pas été photographiées. Les Mariés veilleront à présenter aux Photographes, avant la cérémonie, les personnes importantes (témoins, parents, amis proches, etc.) dont il est impératif à leurs yeux qu'elles figurent sur les photographies. En cas de divergence entre les consignes des Mariés et celles de leurs proches (parents, témoins), les premières seront privilégiées et lieront seules les Photographes. Les Photographes ne seront pas tenues responsables si des photographies ne sont pas réalisées ou sont gâchées par la présence d'invités qui entravent le bon déroulement de la prestation.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 7</span> Style artistique</h3>
+      <p>Les Mariés reconnaissent qu'ils sont familiers avec le style des Photographes, et sollicitent leurs services en connaissance de cause et en raison du style artistique de celles-ci. Ils reconnaissent également que le travail des Photographes est en constante évolution, et que les photographies peuvent dès lors ne pas être identiques à celles déjà visionnées dans les books ou supports de communication des Photographes.</p>
+      <p>Les Photographes s'engagent à mettre dans la réalisation des photographies, quelles que soient les conditions de travail, tout leur potentiel et leur jugement artistique pour créer des images en relation avec leur vision personnelle de l'événement, dans le style et la lignée de ce qui a été montré aux Mariés pour déterminer leur choix. Les Mariés s'engagent à participer activement à la séance, en respectant les consignes des Photographes. Ils feront part de leurs souhaits et de leurs idées afin d'enrichir les séries photographiques, et sont conscients que leur implication est un élément déterminant du succès de la séance de couple. Lors des séances de groupe, ils s'engagent à diriger leurs invités afin de permettre une organisation aussi efficace et rapide que possible.</p>
+    </article>
+
+    </div>
+
+  <footer class="foot">
+    <div class="left"><b style="">Ojunix &amp; Imazia</b> · Paraphez chaque page</div>
+    <div class="page-num">3 / 4</div>
+  </footer>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE 4 — Mentions légales (Articles 8 → 13) + signatures
+══════════════════════════════════════════════════════════ -->
+<section class="sheet" data-screen-label="04 Signatures" data-dashlane-rid="79bad8b22bb6f3fd">
+  <div class="ribbon" style="" data-dashlane-rid="75e6089b5cc0662d">Ojunix &amp; Imazia · Mentions légales (suite) &amp; signatures · Articles 8 → 14</div>
+  <header class="brand">
+    <div class="brand-mark" data-dashlane-rid="42c4d12baf3b4efe">
+      <div class="logo" style="" data-dashlane-rid="7a0ff732a7a013ba">Ojunix<br><span class="x" style="">&amp;</span>Imazia</div>
+      <div class="sub">Duo de photographes mariage · Limoges &amp; Nouvelle-Aquitaine</div>
+    </div>
+    <div class="brand-meta">
+      <div><strong>Mentions légales (suite) &amp; signatures</strong></div>
+      <div style=""><br></div>
+    </div>
+  </header>
+
+  <div class="legal-head">
+    <div class="l">Mentions légales — Contrat reportage mariage</div>
+    <div class="r">Articles 8 → 14</div>
+  </div>
+
+  <div class="legal-cols">
+    <article>
+      <h3><span class="a-no">Art. 8</span> Fichiers numériques</h3>
+      <h4>Hébergement, stockage &amp; conservation</h4>
+      <p>À compter de leur livraison aux Mariés, les photographies sur clef USB seront conservées et archivées sous leur entière responsabilité. Les Mariés sont conscients de la durée limitée des supports numériques, et invités à effectuer des sauvegardes en quantité suffisante et sur des supports variés.</p>
+      <p>La possession des fichiers numériques ne confère pas aux Mariés les droits de propriété intellectuelle sur les photographies qu'ils contiennent et leur délivrance ne fait donc pas obstacle à l'application de l'article 4.1 ci-avant relativement aux droits d'auteur des Photographes.</p>
+      <p>Les Photographes s'engagent à conserver les fichiers numériques pendant une durée de <strong>12 mois</strong> à compter de la date du mariage. Les photographies seront en outre placées dans une <strong>galerie en ligne, protégée par mot de passe</strong>, accessible via les sites des Photographes ou à l'adresse communiquée par celles-ci.</p>
+
+      <h4>Traitement des photographies / Retouches</h4>
+      <p>Le traitement des photographies implique un travail de recadrage, de colorimétrie et d'ajustements sur l'ensemble des photographies. Les Photographes seront libres d'accepter ou non toute demande de traitements plus poussés de certaines photographies à l'initiative des Mariés, et se réservent dans ce cas le droit de leur facturer le surcroît de travail rendu nécessaire par leur demande.</p>
+      <p>Le reportage est livré avec un mélange de photos couleurs et noir &amp; blanc (N&amp;B). La conversion d'une photo couleur en N&amp;B (ou d'une photo N&amp;B en couleur) après livraison du reportage donnera lieu à une facturation de <strong>2 €/photo</strong>. La retouche éventuelle de photos supplémentaires à la demande des Mariés fera l'objet d'une facturation de <strong>3 €/photo</strong>. Dans tous les cas, aucune photo non retouchée ne sera délivrée aux Mariés.</p>
+
+      <h4>Signature des photographies</h4>
+      <p>Chaque photographie numérique livrée est signée par les Photographes. Cette signature, apposée en bas à droite de l'image, fait partie intégrante de l'œuvre photographique et constitue une marque d'auteur au sens du Code de la Propriété Intellectuelle. Elle ne peut être supprimée, masquée, recadrée ou altérée sous quelque forme que ce soit. Toute suppression sera considérée comme une atteinte à l'intégrité de l'œuvre et pourra entraîner des poursuites pour contrefaçon, conformément à l'article 4.1 du présent contrat.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 9</span> Produits livrés</h3>
+      <h4>Tirages</h4>
+      <p>Toutes les tailles d'impression admettent une marge de quelques millimètres par rapport aux formats annoncés. Les Photographes ne pourront être tenues pour responsables de la mauvaise qualité des tirages effectués par des prestataires extérieurs. Les Mariés qui font le choix d'un prestataire pour les tirages s'assureront personnellement de la qualité de son travail sans pouvoir formuler à l'encontre des Photographes la moindre réclamation quant à une éventuelle insuffisance de qualité des tirages.</p>
+
+      <h4>Livre photo</h4>
+      <p>La validation de la mise en page par les Mariés via un <strong>Bon À Tirer (B.A.T.)</strong> avant l'envoi de la commande décharge les Photographes de toute responsabilité sur la mise en page et le texte inclus dans le livre.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 10</span> Délais de livraison</h3>
+      <h4>10.1 — Délais</h4>
+      <p>En fonction de la formule choisie par les Mariés, les fichiers numériques et/ou produits seront livrés dans les délais suivants :</p>
+      <p>· La <strong>galerie en ligne</strong>, protégée par mot de passe, ainsi que la <strong>clef USB</strong> dans un délai de <strong>45 jours</strong> à compter du mariage.<br>· Le <strong>livre photo</strong> au plus tard <strong>4 semaines</strong> à partir de la signature du Bon À Tirer et/ou du règlement total de la commande par les Mariés.</p>
+      <p>Pour toute commande supplémentaire, le délai sera indiqué aux Mariés au moment de leur commande. Les délais mentionnés ci-dessus peuvent être allongés dans certaines circonstances particulières indépendantes de la volonté des Photographes : rupture de stock du fournisseur, grèves, maladie, etc. Les frais d'envoi des produits inclus dans l'offre initiale sont compris dans le coût de la prestation. Les frais d'envoi des produits supplémentaires sont à la charge des Mariés et leur seront indiqués au moment de la commande.</p>
+
+      <h4>10.2 — Réception des commandes</h4>
+      <p>Les Mariés s'engagent à confirmer aux Photographes la bonne réception des commandes par e-mail ou par téléphone dans les 5 jours de la réception de celle-ci. Toute altération des produits livrés devra être signalée par e-mail ou téléphone dans le même délai, et les produits retournés aux Photographes. Les nouveaux produits seront envoyés par les Photographes, après réalisation par le prestataire de leur choix, dans les meilleurs délais avec un dédommagement des frais de retour du produit endommagé, selon tarif indiqué sur le pli de retour.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 11</span> Frais</h3>
+      <h4>Frais des photographes</h4>
+      <p>Si la prestation des Photographes se déroule lors d'un déjeuner ou d'un dîner, les <strong>repas des Photographes sont à la charge des Mariés</strong>. Ces derniers devront garantir un repas correct. Lors de la soirée, le même repas que les invités est fortement apprécié. Selon le lieu du mariage, l'hébergement des Photographes peut être nécessaire. Les frais dus à cet hébergement sont à la charge des Mariés ; ces derniers devront garantir un lit confortable.</p>
+      <p>Les frais sont détaillés lors de la signature du contrat, et à défaut, seront facturés selon les modalités suivantes :</p>
+      <p>· <strong>Déplacement en voiture : 0,70 €/km</strong> au-delà du périmètre inclus dans le forfait.<br>· En cas de logement sur place : frais de logement au choix et à charge des Mariés.<br>· Si le lieu de la prestation change ou n'est pas encore précisément défini au moment de la signature du contrat, les Mariés devront s'acquitter des frais occasionnés.</p>
+      <p>Dans tous les cas, les Mariés supporteront la charge des dépenses supplémentaires (frais d'accès facturés dans certains lieux, frais de parking obligatoire payant, etc.) sur production des justificatifs par les Photographes.</p>
+
+      <h4>Dépassement d'horaires</h4>
+      <p>Tout dépassement des horaires convenus lors de la signature du contrat sera facturé à raison de <strong>250 € H.T./h</strong> (au ¼ d'heure entamé).</p>
+
+      <h4>Frais de réalisation des photographies</h4>
+      <p>Les frais dus à une activité demandée pour une séance photo sont à la charge des Mariés. Les frais de nettoyage de la robe, du costume, de coiffure et autres rendus nécessaires par la réalisation d'une séance photo sont à la charge des Mariés.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 12</span> Modalités de paiement</h3>
+      <h4>Acompte</h4>
+      <p>L'acompte constitue un premier versement à valoir sur le prix total du reportage et manifeste la preuve d'un engagement ferme et irrévocable des parties au contrat. Un acompte équivalent à <strong>30 % de la totalité de la somme H.T.</strong> est demandé le jour de la signature du contrat ; le solde restant, soit <strong>70 %</strong>, est payable le jour de la réception.</p>
+
+      <h4>Commandes</h4>
+      <p>Toutes commandes en dehors de celles prévues dans le contrat initial seront facturées au tarif en vigueur le jour de la réception de la commande. Le paiement des produits commandés est à régler intégralement par chèque le jour de la commande. Les produits non réglés en intégralité restent la propriété des Photographes et ne feront l'objet d'aucune livraison.</p>
+
+      <h4>Conditions de paiement</h4>
+      <p>Tous les tarifs indiqués dans le présent contrat s'entendent en euros, <strong>H.T.</strong> Les Photographes bénéficient du régime de la franchise en base de TVA : <strong>TVA non applicable, art. 293 B du CGI</strong>. Aucune taxe sur la valeur ajoutée ne s'applique aux prestations facturées. Le règlement est à faire par chèque ou virement à l'ordre des Photographes, tel qu'identifié en page 1 du présent contrat. Tout défaut de paiement autorisera les Photographes à cesser toute prestation, et pourra donner lieu à poursuites. Tout retard de paiement donnera lieu au paiement d'intérêts au taux minimal prévu par l'article L441-6 du Code de Commerce (intérêt légal multiplié par trois), exigibles de plein droit et sans rappel, calculés sur les montants hors taxe.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 13</span> Changement de la formule · Rétractation</h3>
+      <h4>Changement de formule</h4>
+      <p>À tout moment, les Mariés peuvent choisir de passer à une formule supérieure, mais l'inverse n'est pas autorisé.</p>
+
+      <h4>Rétractation</h4>
+      <p>Lorsque le contrat n'a pas été conclu dans les bureaux des Photographes, la loi autorise les Mariés à se rétracter pendant <strong>14 jours</strong> à compter de la signature (art. L121-29 du Code de la Consommation). En cas de rétractation dans le délai légal, l'acompte sera intégralement restitué.</p>
+    </article>
+
+    <article>
+      <h3><span class="a-no">Art. 14</span> Réclamations · recherche de solution amiable</h3>
+      <p>Toute réclamation devra être effectuée par lettre recommandée avec accusé de réception dans les <strong>5 jours</strong> de la prestation ou de la livraison du produit incriminé, jours fériés inclus, cachet de la Poste faisant foi. En cas de litige, les parties s'engagent à rechercher en priorité un accord amiable avant toute action en justice.</p>
+    </article>
+
+    </div>
+
+  <div class="closing">
+    La signature d'une réservation matérialisée par le présent contrat implique l'acceptation intégrale du contenu de celui-ci. Aucune condition contraire ne pourra être invoquée à l'encontre des Photographes sans leur accord préalable et écrit. Toute modification donnera lieu à la signature d'un avenant ou d'un ajout manuscrit sur le présent contrat, lequel sera signé par les deux parties. Les Mariés acceptent la réception de newsletters à des fins d'information / promotion / communication ; conformément à l'article L34-5 du Code des Postes et des Communications Électroniques, ils peuvent se désabonner à tout moment. <strong>Fait en 1 exemplaire original</strong> adressé aux Photographes — une copie sera adressée aux Mariés. Les parties apposeront un paraphe sur chacune des 4 pages, leurs signatures précédées de la mention manuscrite « <em>Lu et approuvé, bon pour commande conforme au contrat</em> ».
+  </div>
+
+  <!-- Final signatures -->
+  <div class="signature" style="grid-template-columns: 1fr 1fr 1fr;">
+    <div class="sig-card">
+      <div class="role">Signature — photographe 1</div>
+      <h4 style="font-size: 10px;">Julie Salles — Ojunix<div><br></div><div><br></div><div><br></div><div><br></div><div><br></div></h4>
+      <div class="where-when">
+        <div class="item"><label>Fait à</label><div class="l" data-field="lieuContrat"></div></div>
+        <div class="item"><label>Le</label><div class="l" data-field="derived.dateContratFR"></div></div>
+      </div>
+      <div class="mention">« Lu et approuvé, bon pour commande conforme au contrat »</div>
+    </div>
+
+    <div class="sig-card">
+      <div class="role">Signature — photographe 2</div>
+      <h4 style=""><h4 style="border-radius: 3px; font-family: Archivo, system-ui, sans-serif; color: rgb(26, 22, 20); font-size: 10px;">Sandrine Sounaleix — Imazia<div><br><div><br></div><div><br></div><div><br></div><div><br></div></div></h4></h4>
+      <div class="where-when">
+        <div class="item"><label>Fait à</label><div class="l" data-field="lieuContrat"></div></div>
+        <div class="item"><label>Le</label><div class="l" data-field="derived.dateContratFR"></div></div>
+      </div>
+      <div class="mention">« Lu et approuvé, bon pour commande conforme au contrat »</div>
+    </div>
+
+    <div class="sig-card" style="font-size: 10px;">
+      <div class="role" style="font-size: 10px;">Signatures des futurs mariés</div>
+      <h4 style="font-size: 10px; text-align: center;">Marié·e (1)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &amp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Marié·e (2)<div><br><div><br></div><div><br></div><div><br></div><div><br></div></div></h4>
+      <div class="where-when" style="font-size: 10px;">
+        <div class="item" style="font-size: 10px;"><label style="font-size: 10px;">Fait à</label><div class="l" data-field="lieuContrat"></div></div>
+        <div class="item" style="font-size: 10px;"><label style="font-size: 10px;">Le</label><div class="l" data-field="derived.dateContratFR"></div></div>
+      </div>
+      <div class="mention" style="font-size: 10px;">« Lu et approuvé, bon pour commande conforme au contrat »</div>
+    </div>
+  </div>
+
+  <footer class="foot" data-dashlane-rid="3a1e7cabdb67f8cd">
+    <div class="left" style="" data-dashlane-rid="29f6a38d9bf11fc0"><b>Ojunix &amp; Imazia</b></div>
+    <div class="page-num">4 / 4</div>
+  </footer>
+</section>
+
+
+
+<div id="entretien-root"></div>
+</body><chatgpt-sidebar data-rendered="true" data-gpts-theme="light"></chatgpt-sidebar><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
