@@ -1,0 +1,347 @@
+/*
+ * IMAZIA Design System — CSS Variables
+ * Brand: IMAZIA · Sandrine Sounaleix · Limoges
+ * Version: 2.0 · 2026
+ *
+ * Fonts:
+ *   Archivo (display)    — self-hosted variable font (fonts/)
+ *   Space Grotesk (body) — Google Fonts CDN (no local file provided)
+ *
+ * Load Space Grotesk via:
+ *   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+ */
+
+
+/* ── Space Grotesk — self-hosted variable font ── */
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('fonts/SpaceGrotesk-VariableFont_wght.ttf') format('truetype');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── Archivo — self-hosted variable font ── */
+@font-face {
+  font-family: 'Archivo';
+  src: url('fonts/Archivo-VariableFont_wdth_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('fonts/Archivo-Italic-VariableFont_wdth_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ═══════════════════════════════════════
+   BASE TOKENS
+═══════════════════════════════════════ */
+:root {
+
+  /* ── Surfaces (light) ── */
+  --imazia-bg:      #F9F7F4;   /* main page bg — warm cream */
+  --imazia-bg2:     #F2EDE6;   /* alternate sections, cards */
+  --imazia-bg3:     #E9E2D8;   /* visible borders, dividers */
+  --imazia-border:  rgba(26, 22, 20, 0.09);   /* subtle border */
+  --imazia-border-vis: rgba(26, 22, 20, 0.14); /* more visible border */
+
+  /* ── Ink (text) ── */
+  --imazia-ink:     #1A1614;   /* primary text, titles, nav */
+  --imazia-ink2:    #2C2320;   /* dark photo panels */
+  --imazia-muted:   #6B5D54;   /* body text, subtitles */
+  --imazia-faint:   #A8998F;   /* placeholders, decorative */
+
+  /* ── Dark panels ── */
+  --imazia-panel-photo: #2C2320;  /* photo hero, process section */
+  --imazia-panel-web:   #0C1C24;  /* web hero panel */
+  --imazia-panel-footer:#1A1614;  /* footer */
+
+  /* ── Accent — Photographie (Terracotta) ── */
+  --imazia-photo:   #C4512A;   /* CTA photo, photo nav links */
+  --imazia-photo-h: #A84020;   /* hover state */
+  --imazia-photo-l: rgba(196, 81, 42, 0.10);  /* light tint bg */
+
+  /* ── Accent — Création Web (Teal) ── */
+  --imazia-web:     #1E5F73;   /* CTA web, web nav links */
+  --imazia-web-h:   #164F61;   /* hover state */
+  --imazia-web-l:   rgba(30, 95, 115, 0.10);  /* light tint bg */
+
+  /* ── Or / Gold ── */
+  --imazia-gold:    #B0884F;   /* star ratings, premium accents */
+  --imazia-gold-l:  rgba(176, 136, 79, 0.12); /* light gold bg */
+
+  /* ── Typography ── */
+  --imazia-display: 'Archivo', system-ui, sans-serif;
+  --imazia-body:    'Space Grotesk', system-ui, sans-serif;
+
+  /* ── Motion ── */
+  --imazia-ease:    cubic-bezier(0.16, 1, 0.3, 1);   /* Spring — main transitions */
+  --imazia-ease2:   cubic-bezier(0.4, 0, 0.2, 1);    /* Material — nav, overlays */
+
+  /* ── Spacing (4px base grid) ── */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+
+  /* ── Radii ── */
+  --radius-sm:   4px;   /* chips, small tags */
+  --radius-md:   8px;   /* inputs */
+  --radius-lg:   10px;  /* inputs (relaxed), small cards */
+  --radius-card: 12px;  /* standard cards */
+  --radius-card-lg: 14px; /* testimonial cards */
+  --radius-service: 16px; /* service cards */
+  --radius-section: 20px; /* section/chapter blocks */
+  --radius-pill: 50px;  /* buttons, badges, nav pills */
+
+  /* ── Shadows ── */
+  --shadow-card:       0 2px 12px rgba(26, 22, 20, 0.05);
+  --shadow-card-hover-photo: 0 20px 48px rgba(196, 81, 42, 0.20);
+  --shadow-card-hover: 0 12px 32px rgba(26, 22, 20, 0.07);
+  --shadow-nav:        0 2px 20px rgba(26, 22, 20, 0.07);
+
+  /* ── Content width ── */
+  --imazia-max-width: 1280px;
+}
+
+/* ═══════════════════════════════════════
+   SEMANTIC TYPOGRAPHY ROLES
+═══════════════════════════════════════ */
+
+/* H1 — Hero headline */
+.imazia-h1 {
+  font-family: var(--imazia-display);
+  font-size: clamp(28px, 3.8vw, 52px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  color: var(--imazia-ink);
+}
+
+/* H1 italic contrast variant (Archivo 300i + 800 inline) */
+.imazia-h1-italic {
+  font-family: var(--imazia-display);
+  font-size: clamp(22px, 3.5vw, 48px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.2;
+  color: var(--imazia-ink);
+}
+.imazia-h1-italic strong {
+  font-weight: 800;
+  font-style: normal;
+}
+
+/* H2 — Section title */
+.imazia-h2 {
+  font-family: var(--imazia-display);
+  font-size: clamp(28px, 3vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  color: var(--imazia-ink);
+}
+
+/* H2 — On dark panels (with italic em) */
+.imazia-h2-dark {
+  font-family: var(--imazia-display);
+  font-size: clamp(22px, 2.5vw, 40px);
+  font-weight: 300;
+  font-style: italic;
+  color: #fff;
+  line-height: 1.2;
+}
+.imazia-h2-dark strong {
+  font-weight: 800;
+  font-style: normal;
+}
+
+/* H3 — Card title */
+.imazia-h3 {
+  font-family: var(--imazia-display);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--imazia-ink);
+}
+
+/* H4 — Sub-heading, kicker uppercase */
+.imazia-h4 {
+  font-family: var(--imazia-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--imazia-ink);
+}
+
+/* Kicker — section micro-label */
+.imazia-kicker {
+  font-family: var(--imazia-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--imazia-muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.imazia-kicker::before {
+  content: '';
+  width: 20px;
+  height: 1px;
+  flex-shrink: 0;
+  background: currentColor;
+}
+.imazia-kicker.photo { color: var(--imazia-photo); }
+.imazia-kicker.web   { color: var(--imazia-web); }
+
+/* Body — standard paragraph */
+.imazia-body {
+  font-family: var(--imazia-body);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7;
+  color: var(--imazia-muted);
+}
+
+/* Body small */
+.imazia-body-sm {
+  font-family: var(--imazia-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--imazia-muted);
+}
+
+/* Caption */
+.imazia-caption {
+  font-family: var(--imazia-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--imazia-faint);
+}
+
+/* Label — form label */
+.imazia-label {
+  font-family: var(--imazia-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--imazia-ink);
+}
+
+/* ── Logo nav ── */
+.imazia-logo {
+  font-family: var(--imazia-display);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--imazia-ink);
+  line-height: 1;
+}
+.imazia-logo-sub {
+  font-family: var(--imazia-body);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 2.8px;
+  text-transform: uppercase;
+  color: var(--imazia-muted);
+}
+
+/* ═══════════════════════════════════════
+   SEMANTIC COMPONENT STYLES
+═══════════════════════════════════════ */
+
+/* ── Buttons ── */
+.btn-imazia {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--imazia-body);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  border-radius: var(--radius-pill);
+  border: 2px solid;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--imazia-ease2) 0.25s,
+              color var(--imazia-ease2) 0.25s,
+              border-color var(--imazia-ease2) 0.25s;
+}
+.btn-photo {
+  background: var(--imazia-photo);
+  color: #fff;
+  border-color: var(--imazia-photo);
+}
+.btn-photo:hover {
+  background: transparent;
+  color: var(--imazia-photo);
+}
+.btn-web {
+  background: var(--imazia-web);
+  color: #fff;
+  border-color: var(--imazia-web);
+}
+.btn-web:hover {
+  background: transparent;
+  color: var(--imazia-web);
+}
+.btn-ink {
+  background: var(--imazia-ink);
+  color: #fff;
+  border-color: var(--imazia-ink);
+}
+.btn-ink:hover {
+  background: var(--imazia-photo);
+  border-color: var(--imazia-photo);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--imazia-ink);
+  border-color: rgba(26, 22, 20, 0.2);
+}
+.btn-ghost:hover {
+  background: var(--imazia-bg2);
+}
+
+/* ── Focus ring ── */
+*:focus-visible {
+  outline: 2.5px solid var(--imazia-photo);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+*:focus:not(:focus-visible) { outline: none; }
+
+/* ── Reveal animation ── */
+.imazia-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.65s var(--imazia-ease),
+              transform 0.65s var(--imazia-ease);
+}
+.imazia-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.imazia-reveal.delay-1 { transition-delay: 0.1s; }
+.imazia-reveal.delay-2 { transition-delay: 0.2s; }
+.imazia-reveal.delay-3 { transition-delay: 0.3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .imazia-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
